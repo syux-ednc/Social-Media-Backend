@@ -9,8 +9,6 @@ import org.springframework.stereotype.Component;
 
 import java.util.Collection;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 @Component
@@ -22,23 +20,17 @@ public class JwtUtils {
     @Value("${sm.app.jwtExpirationMs}")
     private int jwtExpirationMs;
 
-    public Map<String, String> generateJwtToken(Authentication authentication) {
-        Map<String, String> tempMap = new HashMap<>();
+    public String generateJwtToken(Authentication authentication) {
         User user = (User) authentication.getPrincipal();
         String username = user.getUsername();
         Collection<GrantedAuthority> roleList = user.getAuthorities();
-        String filteredRole = roleList.toString().trim();
-        String token = Jwts.builder()
+        return Jwts.builder()
                 .setSubject(username)
                 .setIssuedAt(new Date())
                 .setExpiration(new Date((new Date()).getTime() + jwtExpirationMs))
                 .claim("role", roleList.stream().map(GrantedAuthority::getAuthority).collect(Collectors.toList()))
                 .signWith(SignatureAlgorithm.HS512, jwtSecret)
                 .compact();
-        tempMap.put("role", filteredRole.substring(1, filteredRole.length() - 1));
-        tempMap.put("username", username);
-        tempMap.put("access_token", token);
-        return tempMap;
     }
 
     public String getUserNameFromJwtToken(String token) {

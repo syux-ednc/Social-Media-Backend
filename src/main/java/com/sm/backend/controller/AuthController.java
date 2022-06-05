@@ -14,8 +14,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Map;
-
 @RestController
 @RequestMapping("/auth")
 public class AuthController {
@@ -41,8 +39,8 @@ public class AuthController {
                             user.getPassword()
                     ));
             SecurityContextHolder.getContext().setAuthentication(authentication);
-            Map<String, String> jwt = jwtUtils.generateJwtToken(authentication);
-            return ResponseEntity.status(HttpStatus.OK).body(jwt);
+            String jwt = jwtUtils.generateJwtToken(authentication);
+            return ResponseEntity.status(HttpStatus.OK).body(new ResponseMessage(jwt));
         } catch (Exception e) {
             System.out.println(e.getMessage());
             return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(new ResponseMessage(e.getMessage()));
